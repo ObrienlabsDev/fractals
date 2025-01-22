@@ -13,14 +13,83 @@
 * Mandelbrot set on NVidia GPUs like the RTX-3500 ada,RTX-A4000,RTX-A4500,RTX-4090 ada and RTX-A6000
 * https://github.com/ObrienlabsDev/performance
 * https://github.com/ObrienlabsDev/fractals
-
+*
+* https://docs.nvidia.com/cuda/floating-point/index.html 
 */
-cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size);
+cudaError_t cudaFacade(double *c, double *a, double *b, unsigned int size);
 
-__global__ void addKernel(int *c, const int *a, const int *b)
+
+__device__ uint32_t mandel_double(double cr, double ci, int max_iter) {
+    double zr = 0;
+    double zi = 0;
+    double zrsqr = 0;
+    double zisqr = 0;
+
+    uint32_t i;
+
+    for (i = 0; i < max_iter; i++) {
+        zi = zr * zi;
+        zi += zi;
+        zi += ci;
+        zr = zrsqr - zisqr + cr;
+        zrsqr = zr * zr;
+        zisqr = zi * zi;
+
+        //the fewer iterations it takes to diverge, the farther from the set
+        if (zrsqr + zisqr > 4.0) break;
+    }
+
+    return i;
+}
+
+__global__ void mandel_kernel(uint32_t* counts, double xmin, double ymin,
+    double step, int max_iter, int dim, uint32_t* colors) {
+    int pix_per_thread = dim * dim / (gridDim.x * blockDim.x);
+    int tId = blockDim.x * blockIdx.x + threadIdx.x;
+    int offset = pix_per_thread * tId;
+    for (int i = offset; i < offset + pix_per_thread; i++) {
+        int x = i % dim;
+        int y = i / dim;
+        double cr = xmin + x * step;
+        double ci = ymin + y * step;
+        counts[y * dim + x] = colors[mandel_double(cr, ci, max_iter)];
+    }
+    if (gridDim.x * blockDim.x * pix_per_thread < dim * dim
+        && tId < (dim * dim) - (blockDim.x * gridDim.x)) {
+        int i = blockDim.x * gridDim.x * pix_per_thread + tId;
+        int x = i % dim;
+        int y = i / dim;
+        double cr = xmin + x * step;
+        double ci = ymin + y * step;
+        counts[y * dim + x] = colors[mandel_double(cr, ci, max_iter)];
+    }
+}
+
+__global__ void addKernel(double *c, double *a, double *b)
 {
-    int i = threadIdx.x;
-    c[i] = a[i] + b[i];
+    int x = threadIdx.x;
+
+    double zr = 0;
+    double zi = 0;
+    double zrsqr = 0;
+    double zisqr = 0;
+    int max_iter = 2000;
+    double ci = -0.59990625;// 0;
+    double cr = 0.4290703125; //0;
+
+    uint32_t i;
+
+    for (i = 0; i < max_iter; i++) {
+        zi = zr * zi;
+        zi += zi;
+        zi += ci;
+        zr = zrsqr - zisqr + cr;
+        zrsqr = zr * zr;
+        zisqr = zi * zi;
+
+        if (zrsqr + zisqr > 4.0) break;
+    }
+    c[x] = i;// zrsqr + zisqr;
 }
 
 void singleGPUMandelbrot() {
@@ -32,20 +101,19 @@ void singleGPUMandelbrot() {
         dualDevice = 1;
     }
 
-
     const int arraySize = 5;
-    const int a[arraySize] = { 1, 2, 3, 4, 5 };
-    const int b[arraySize] = { 10, 20, 30, 40, 50 };
-    int c[arraySize] = { 0 };
+    double a[arraySize] = { 1.0, 2.0, 3.0, 4.0, 5.0 };
+    double b[arraySize] = { 10.0, 20.0, 30.0, 40.0, 50.0 };
+    double c[arraySize] = { 0.0 };
 
     // Add vectors in parallel.
-    cudaError_t cudaStatus = addWithCuda(c, a, b, arraySize);
+    cudaError_t cudaStatus = cudaFacade(c, a, b, arraySize);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "addWithCuda failed!");
         return;
     }
 
-    printf("{1,2,3,4,5} + {10,20,30,40,50} = {%d,%d,%d,%d,%d}\n",
+    printf("{1,2,3,4,5} + {10,20,30,40,50} = {%lf,%lf,%lf,%lf,%lf}\n",
         c[0], c[1], c[2], c[3], c[4]);
 
     // cudaDeviceReset must be called before exiting in order for profiling and
@@ -53,18 +121,59 @@ void singleGPUMandelbrot() {
     cudaStatus = cudaDeviceReset();
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaDeviceReset failed!");
-        return ;
+        return;
     }
 }
 
-// Helper function for using CUDA to add vectors in parallel.
-cudaError_t addWithCuda(int* c, const int* a, const int* b, unsigned int size)
+
+cudaError_t cudaFacade(double* c, double* a, double* b, unsigned int size)
 {
-    int* dev_a = 0;
-    int* dev_b = 0;
-    int* dev_c = 0;
+    /*
+    double cr = .9;
+    double ci = .1;
+    int max_iter = 2000;
+    int steps = 10000;
+    int threads = 512;
+    int blocks = (10000 + threads - 1) / threads;  // ensure threads*blocks ≥ steps
+    uint32_t* counts;
+    double xmin = -2.0;
+    double ymin = -2.0;
+    int dim = 256;
+    double step = (xmin * 2) / dim;
+    uint32_t* colors;
+    for (int i = 0; i < max_iter; i++) {
+        colors[i] = i;
+    }
+    //thrust::device_vector<uint32_t> dsums(steps);         // GPU buffer
+   // uint32_t* dptr = thrust::raw_pointer_cast(&dsums[0]); // get pointer
+    //double* dsums = 0;
     cudaError_t cudaStatus;
 
+    
+    cudaStatus = cudaMalloc((void**)&counts, size * sizeof(double));
+    //cudaStatus = cudaMemcpy(dev_a, a, size * sizeof(double), cudaMemcpyHostToDevice);
+
+    mandel_kernel << <blocks, threads >> > (counts, xmin, ymin, step, max_iter, dim, colors);
+    //uint32_t mandel = mandel_double(cr, ci, max_iter);
+
+    cudaStatus = cudaDeviceSynchronize();
+
+    cudaStatus = cudaMemcpy(c, counts, size * sizeof(double), cudaMemcpyDeviceToHost);
+
+    double mandel = counts[0];
+
+    printf("real %.8f, imag %.8f, value %d\n",
+        cr, ci, mandel);
+
+    cudaFree(counts);
+
+    //return 0;
+    // 
+    */
+    double* dev_a = 0;
+    double* dev_b = 0;
+    double* dev_c = 0;
+    cudaError_t cudaStatus;
     // Choose which GPU to run on, change this on a multi-GPU system.
     cudaStatus = cudaSetDevice(0);
     if (cudaStatus != cudaSuccess) {
@@ -73,39 +182,39 @@ cudaError_t addWithCuda(int* c, const int* a, const int* b, unsigned int size)
     }
 
     // Allocate GPU buffers for three vectors (two input, one output)    .
-    cudaStatus = cudaMalloc((void**)&dev_c, size * sizeof(int));
+    cudaStatus = cudaMalloc((void**)&dev_c, size * sizeof(double));
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMalloc failed!");
         goto Error;
     }
 
-    cudaStatus = cudaMalloc((void**)&dev_a, size * sizeof(int));
+    cudaStatus = cudaMalloc((void**)&dev_a, size * sizeof(double));
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMalloc failed!");
         goto Error;
     }
 
-    cudaStatus = cudaMalloc((void**)&dev_b, size * sizeof(int));
+    cudaStatus = cudaMalloc((void**)&dev_b, size * sizeof(double));
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMalloc failed!");
         goto Error;
     }
 
     // Copy input vectors from host memory to GPU buffers.
-    cudaStatus = cudaMemcpy(dev_a, a, size * sizeof(int), cudaMemcpyHostToDevice);
+    cudaStatus = cudaMemcpy(dev_a, a, size * sizeof(double), cudaMemcpyHostToDevice);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMemcpy failed!");
         goto Error;
     }
 
-    cudaStatus = cudaMemcpy(dev_b, b, size * sizeof(int), cudaMemcpyHostToDevice);
+    cudaStatus = cudaMemcpy(dev_b, b, size * sizeof(double), cudaMemcpyHostToDevice);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMemcpy failed!");
         goto Error;
     }
 
     // Launch a kernel on the GPU with one thread for each element.
-    addKernel << <1, size >> > (dev_c, dev_a, dev_b);
+    addKernel << <1024, size >> > (dev_c, dev_a, dev_b);
 
     // Check for any errors launching the kernel
     cudaStatus = cudaGetLastError();
@@ -123,7 +232,7 @@ cudaError_t addWithCuda(int* c, const int* a, const int* b, unsigned int size)
     }
 
     // Copy output vector from GPU buffer to host memory.
-    cudaStatus = cudaMemcpy(c, dev_c, size * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaStatus = cudaMemcpy(c, dev_c, size * sizeof(double), cudaMemcpyDeviceToHost);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaMemcpy failed!");
         goto Error;
@@ -133,15 +242,15 @@ Error:
     cudaFree(dev_c);
     cudaFree(dev_a);
     cudaFree(dev_b);
-
+    
     return cudaStatus;
 }
 
 int main(int argc, char* argv[])
 {
-
     int cores = (argc > 1) ? atoi(argv[1]) : 5120; // get command
     singleGPUMandelbrot();
     return 0;
 }
+
 
