@@ -170,6 +170,7 @@ cudaError_t cudaFacade(double* c, double* a, double* b, unsigned int size)
     //return 0;
     // 
     */
+
     double* dev_a = 0;
     double* dev_b = 0;
     double* dev_c = 0;
@@ -246,11 +247,65 @@ Error:
     return cudaStatus;
 }
 
-int main(int argc, char* argv[])
+#define WIDTH  8192//1920
+#define HEIGHT 8192//1080
+
+#define MAX_ITER 4000
+
+#define X_MIN -2.0f
+#define X_MAX  1.0f
+#define Y_MIN -1.2f
+#define Y_MAX  1.2f
+
+__global__ void mandelbrotKernel(unsigned char* output, int width, int height,
+    float xMin, float xMax, float yMin, float yMax, int maxIter)
 {
-    int cores = (argc > 1) ? atoi(argv[1]) : 5120; // get command
-    singleGPUMandelbrot();
-    return 0;
+    int px = blockIdx.x * blockDim.x + threadIdx.x;
+    int py = blockIdx.y * blockDim.y + threadIdx.y;
+    if (px >= width || py >= height) return;
+
+    float dx = (xMax - xMin) / (float)width;
+    float dy = (yMax - yMin) / (float)height;
+    float x0 = xMin + px * dx;
+    float y0 = yMin + py * dy;
+
+    float x = 0.0f, y = 0.0f;
+    int iter = 0;
+    while ((x * x + y * y <= 4.0f) && (iter < maxIter)) {
+        float xTemp = x * x - y * y + x0;
+        y = 2.0f * x * y + y0;
+        x = xTemp;
+        iter++;
+    }
+
+    unsigned char color = (unsigned char)(255.0f * (float)iter / (float)maxIter);
+    int index = py * width + px;
+    output[index] = color;
 }
 
+int main(int argc, char* argv[])
+{
+    int gpu = (argc > 1) ? atoi(argv[1]) : 0; // get command
+    int iterations = (argc > 1) ? atoi(argv[2]) : 2000;
+    printf("Using GPU #: %d for iterations: %d\n", gpu, iterations);
+    cudaSetDevice(gpu);
+    //singleGPUMandelbrot();
 
+    size_t imageSize = WIDTH * HEIGHT * sizeof(unsigned char);
+    unsigned char* h_image = (unsigned char*)malloc(imageSize);
+    unsigned char* d_image;
+    cudaMalloc((void**)&d_image, imageSize);
+
+    dim3 blockSize(16, 16);
+    dim3 gridSize((WIDTH + blockSize.x - 1) / blockSize.x,(HEIGHT + blockSize.y - 1) / blockSize.y);
+
+    for (int run = 0; run < iterations; run++) {
+        mandelbrotKernel << <gridSize, blockSize >> > (d_image, WIDTH, HEIGHT, X_MIN, X_MAX, Y_MIN, Y_MAX, MAX_ITER);
+        cudaDeviceSynchronize();
+        printf("Completed %d\n", run);
+        cudaMemcpy(h_image, d_image, imageSize, cudaMemcpyDeviceToHost);
+    }
+    cudaFree(d_image);
+    free(h_image);
+    return 0;
+}
