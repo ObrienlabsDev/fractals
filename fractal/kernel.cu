@@ -214,7 +214,7 @@ cudaError_t cudaFacade(double* c, double* a, double* b, unsigned int size)
     }
 
     // Launch a kernel on the GPU with one thread for each element.
-    addKernel << <1024, size >> > (dev_c, dev_a, dev_b);
+    addKernel << <1, size >> > (dev_c, dev_a, dev_b);
 
     // Check for any errors launching the kernel
     cudaStatus = cudaGetLastError();
