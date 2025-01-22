@@ -5,6 +5,8 @@ Warning: Your GPU will run at 100% at up to 90% TDP.  You will need at least a 1
 
 
 9 A - two RTX-A4500 GPUs
+![image](https://github.com/user-attachments/assets/e8843564-c8c1-4768-903d-6341b369e835)
+
 ![image](https://github.com/user-attachments/assets/7de6901a-a024-4d8f-b623-f8c10393bad4)
 
 10.5 A - two RTX-4090 GPUs generating Mandelbrot set images
