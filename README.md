@@ -8,10 +8,10 @@ Warning: Your GPU will run at 100% at up to 90% TDP.  You will need at least a 1
 
 perf | sec | /run | # GPUs | % GPU | Watts | TDP | Chip | GPU spec
 --- | --- | --- | --- | --- | --- | --- | --- | ---
-1 | 46 | .0092 | 1 | 99 | 452 | 94 | AD-102 | RTX-4090 Ada 
-1 | 105 | .0037 | 1 | 99 | 102 | ? | AD-104 | RTX-3500 Ada Thermal Throttling
-1 | 156 | .0312 | 1 | 99 | 194 | 97 | GA-102 | RTX-A4500 
-1 | 208 | .0416 | 1 | 99 | 143 | 102 | GA-104 | RTX-A4000 
+5.85 | 46 | .0092 | 1 | 99 | 452 | 94 | AD-102 | RTX-4090 Ada 
+2.56 | 105 | .0037 | 1 | 99 | 102 | ? | AD-104 | RTX-3500 Ada Thermal Throttling
+1.72 | 156 | .0312 | 1 | 99 | 194 | 97 | GA-102 | RTX-A4500 
+1.29 | 208 | .0416 | 1 | 99 | 143 | 102 | GA-104 | RTX-A4000 
 1 | 269 | .0538 | 1 | 99 | 105 | ? | TU-104 | RTX-5000
 
 
