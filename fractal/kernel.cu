@@ -247,10 +247,10 @@ Error:
     return cudaStatus;
 }
 
-#define WIDTH  8192//1920
-#define HEIGHT 8192//1080
+#define WIDTH  4096//1920
+#define HEIGHT 4096//1080
 
-#define MAX_ITER 4000
+#define MAX_ITER 8192
 
 #define X_MIN -2.0f
 #define X_MAX  1.0f
@@ -291,6 +291,10 @@ int main(int argc, char* argv[])
     cudaSetDevice(gpu);
     //singleGPUMandelbrot();
 
+    time_t timeStart, timeEnd;
+    double timeElapsed;
+    time(&timeStart);
+
     size_t imageSize = WIDTH * HEIGHT * sizeof(unsigned char);
     unsigned char* h_image = (unsigned char*)malloc(imageSize);
     unsigned char* d_image;
@@ -307,5 +311,12 @@ int main(int argc, char* argv[])
     }
     cudaFree(d_image);
     free(h_image);
+    
+    time(&timeEnd);
+    timeElapsed = difftime(timeEnd, timeStart);
+
+    printf("duration: %.f\n", timeElapsed);
+    printf("time / run : %f\n", timeElapsed / iterations);
+    
     return 0;
 }
