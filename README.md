@@ -2,6 +2,13 @@
 Mandelbrot set - via GPU
 Warning: Your GPU will run at 100% at up to 90% TDP.  You will need at least a 1600 Watt PSU and 2 separate 15A/1800W breakers on 2 lines.
 
+## Performance
+
+sec | /run | # GPUs | % GPU | Watts | TDP | Chip | GPU spec
+--- | --- | --- | --- | --- | --- | --- | ---
+68 | .0034 | 1 | 99 | 102 | ? | AD-104 | RTX-3500 Ada 
+
+
 
 
 9 A - two RTX-A4500 GPUs
