@@ -1,3 +1,5 @@
+20250223 - this particular template was used as a guide [https://github.com/ObrienlabsDev/fractals/tree/main/metal/mandelbrot_metal](https://developer.apple.com/documentation/metal/performing-calculations-on-a-gpu) in this code at [https://github.com/ObrienlabsDev/fractals/edit/main/metal/mandelbrot_metal](https://github.com/ObrienlabsDev/fractals/edit/main/metal/mandelbrot_metal) 
+
 # Performing Calculations on a GPU
 
 Use Metal to find GPUs and perform calculations on them.
