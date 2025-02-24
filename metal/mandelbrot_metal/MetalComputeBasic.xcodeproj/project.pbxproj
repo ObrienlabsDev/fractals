@@ -12,6 +12,8 @@
 		5FFAD4D421C8647E00384F46 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FFAD4D321C8647E00384F46 /* main.m */; };
 		5FFAD4DC21C8648800384F46 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FFAD4DB21C8648800384F46 /* Metal.framework */; };
 		5FFAD4DE21C869B700384F46 /* add.metal in Sources */ = {isa = PBXBuildFile; fileRef = 5FFAD4DD21C869B700384F46 /* add.metal */; };
+		ED192B9A2D6BF05500D850BB /* mandelbrot.metal in Sources */ = {isa = PBXBuildFile; fileRef = ED192B992D6BF04C00D850BB /* mandelbrot.metal */; };
+		ED192B9C2D6BF0A500D850BB /* MandelbrotGPU.m in Sources */ = {isa = PBXBuildFile; fileRef = ED192B9B2D6BF08700D850BB /* MandelbrotGPU.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,6 +39,9 @@
 		5FFAD4D321C8647E00384F46 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		5FFAD4DB21C8648800384F46 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		5FFAD4DD21C869B700384F46 /* add.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = add.metal; sourceTree = "<group>"; };
+		ED192B992D6BF04C00D850BB /* mandelbrot.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = mandelbrot.metal; sourceTree = "<group>"; };
+		ED192B9B2D6BF08700D850BB /* MandelbrotGPU.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MandelbrotGPU.m; sourceTree = "<group>"; };
+		ED192B9D2D6BF12C00D850BB /* MandelbrotGPU.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MandelbrotGPU.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +88,9 @@
 		5FFAD4D221C8647E00384F46 /* MetalComputeBasic */ = {
 			isa = PBXGroup;
 			children = (
+				ED192B9D2D6BF12C00D850BB /* MandelbrotGPU.h */,
+				ED192B9B2D6BF08700D850BB /* MandelbrotGPU.m */,
+				ED192B992D6BF04C00D850BB /* mandelbrot.metal */,
 				5FFAD4D321C8647E00384F46 /* main.m */,
 				5FB82D17221CD515006D0331 /* MetalAdder.h */,
 				5FB82D18221CD515006D0331 /* MetalAdder.m */,
@@ -166,7 +174,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED192B9C2D6BF0A500D850BB /* MandelbrotGPU.m in Sources */,
 				5FB82D19221CD515006D0331 /* MetalAdder.m in Sources */,
+				ED192B9A2D6BF05500D850BB /* mandelbrot.metal in Sources */,
 				5FFAD4D421C8647E00384F46 /* main.m in Sources */,
 				5FFAD4DE21C869B700384F46 /* add.metal in Sources */,
 			);
