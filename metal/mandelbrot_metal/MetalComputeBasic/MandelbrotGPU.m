@@ -9,8 +9,14 @@
 #import "MandelbrotGPU.h"
 #import <Metal/Metal.h>
 #import <Foundation/Foundation.h>
+#include <time.h>
 
 BOOL computeMandelbrotImage(id<MTLDevice> device, MandelbrotParams params, uint8_t *outputImage) {
+    
+    time_t timeStart, timeEnd;
+    double timeElapsed;
+    time(&timeStart);
+    
     // Ensure a valid Metal device is available
     if (device == nil) {
         NSLog(@"[MandelbrotGPU] Error: No Metal GPU device available.");
@@ -97,5 +103,10 @@ BOOL computeMandelbrotImage(id<MTLDevice> device, MandelbrotParams params, uint8
     }
     memcpy(outputImage, gpuDataPtr, imageBytes);
 
+    
+    time(&timeEnd);
+    timeElapsed = difftime(timeEnd, timeStart);
+    printf("Time: %g seconds\n", timeElapsed);
+    
     return YES;  // Computation successful
 }
