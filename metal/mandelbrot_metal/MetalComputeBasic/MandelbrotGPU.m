@@ -60,7 +60,7 @@ BOOL computeMandelbrotImage(id<MTLDevice> device, MandelbrotParams params, uint8
     }
 
     // Create a command buffer and a compute command encoder
-    int iterations = 2000;
+    int iterations = 5000;
     for (int run = 0; run < iterations - 1; run++) {
         
         id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];

@@ -47,10 +47,10 @@ int main(int argc, const char * argv[]) {
         params.height = 4096;
         params.maxIterations = 8192;
         // Use the standard view of the Mandelbrot set (you can adjust for zoom/position)
-        params.x0 = -2.5f;  // real axis min
+        params.x0 = -2.0f;  // real axis min
         params.x1 =  1.0f;  // real axis max
-        params.y0 = -1.0f;  // imaginary axis min
-        params.y1 =  1.0f;  // imaginary axis max
+        params.y0 = -1.2f;  // imaginary axis min
+        params.y1 =  1.2f;  // imaginary axis max
 
         // Allocate memory for the output image (4 bytes per pixel for RGBA)
         size_t imageBytes = (size_t)params.width * params.height * 4;
