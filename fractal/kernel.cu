@@ -286,7 +286,7 @@ __global__ void mandelbrotKernel(unsigned char* output, int width, int height,
 int main(int argc, char* argv[])
 {
     int gpu = (argc > 1) ? atoi(argv[1]) : 0; // get command
-    int iterations = (argc > 1) ? atoi(argv[2]) : 2000;
+    int iterations = (argc > 1) ? atoi(argv[2]) : 5000;
     printf("Using GPU #: %d for iterations: %d\n", gpu, iterations);
     cudaSetDevice(gpu);
     //singleGPUMandelbrot();
@@ -306,7 +306,7 @@ int main(int argc, char* argv[])
     for (int run = 0; run < iterations; run++) {
         mandelbrotKernel << <gridSize, blockSize >> > (d_image, WIDTH, HEIGHT, X_MIN, X_MAX, Y_MIN, Y_MAX, MAX_ITER);
         cudaDeviceSynchronize();
-        printf("Completed %d\n", run);
+        //printf("Completed %d\n", run);
         cudaMemcpy(h_image, d_image, imageSize, cudaMemcpyDeviceToHost);
     }
     cudaFree(d_image);
