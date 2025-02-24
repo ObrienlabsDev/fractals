@@ -4,7 +4,7 @@ Warning: Your GPU will run at 100% at up to 90% TDP.  You will need at least a 1
 
 ## Performance
 
-- block size 16 x 16, 5000 4096x4096 images with max iteration of 8192
+- block size 16 x 16, 2000 4096x4096 images with max iteration of 8192
 
 perf | sec | /run | # GPUs | % GPU | Watts | TDP | Chip | Cores | GPU spec
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --
