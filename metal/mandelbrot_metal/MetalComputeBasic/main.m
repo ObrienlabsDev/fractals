@@ -3,6 +3,7 @@ See LICENSE folder for this sample’s licensing information.
 
 Abstract:
 An app that performs a simple calculation on a GPU.
+Assistance of ChatGPT o1 pro "deep research"
 */
 
 #import <Foundation/Foundation.h>
@@ -26,6 +27,10 @@ void add_arrays(const float* inA,
 
 // output in /Users/*/Library/Developer/Xcode/DerivedData/MetalComputeBasic-*/Build/Products/Debug
 int main(int argc, const char * argv[]) {
+    
+    int gpu = (argc > 1) ? atoi(argv[1]) : 0; // get command
+    int iterations = (argc > 1) ? atoi(argv[2]) : 2000;
+    printf("Using GPU #: %d for iterations: %d\n", gpu, iterations);
     
     @autoreleasepool {
         // Initialize the default Metal GPU device
@@ -57,14 +62,18 @@ int main(int argc, const char * argv[]) {
 
         // Compute the Mandelbrot image using the GPU
         NSLog(@"Computing Mandelbrot set %ux%u with max %u iterations...", params.width, params.height, params.maxIterations);
-        BOOL ok = computeMandelbrotImage(device, params, imageData);
+        BOOL ok;
+        // check single run first
+        ok = computeMandelbrotImage(device, params, imageData);
         if (!ok) {
             NSLog(@"Mandelbrot GPU computation failed.");
             free(imageData);
             return 1;
         }
+        
         NSLog(@"GPU computation complete.");
 
+        // save only the last image
         // Wrap the raw pixel buffer in an NSBitmapImageRep for image saving
         // Note: We provide the buffer pointer to NSBitmapImageRep without copying
         unsigned char *planes[1] = { imageData };

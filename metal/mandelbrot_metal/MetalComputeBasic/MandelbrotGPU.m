@@ -3,7 +3,7 @@
 //  MetalComputeBasic
 //
 //  Created by Michael O'Brien on 2025/2/23.
-//  Copyright © 2025 Apple. All rights reserved.
+// Assistance of ChatGPT o1 pro "deep research"
 //
 
 #import "MandelbrotGPU.h"
@@ -54,39 +54,41 @@ BOOL computeMandelbrotImage(id<MTLDevice> device, MandelbrotParams params, uint8
     }
 
     // Create a command buffer and a compute command encoder
-    id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
-    id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
-    if (encoder == nil) {
-        NSLog(@"[MandelbrotGPU] Error: Failed to create compute command encoder.");
-        return NO;
+    int iterations = 2000;
+    for (int run = 0; run < iterations - 1; run++) {
+        
+        id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+        if (encoder == nil) {
+            NSLog(@"[MandelbrotGPU] Error: Failed to create compute command encoder.");
+            return NO;
+        }
+        
+        // Set the compute pipeline state (our Mandelbrot kernel) and resources
+        [encoder setComputePipelineState:pipelineState];
+        // Bind the output buffer to the shader (argument index 0 corresponds to device uchar4* outPixels)
+        [encoder setBuffer:outputBuffer offset:0 atIndex:0];
+        // Pass Mandelbrot parameters to the shader as a constant buffer (argument index 1)
+        [encoder setBytes:&params length:sizeof(MandelbrotParams) atIndex:1];
+        
+        // Configure threadgroup size for full GPU utilization (16x16 threads per group)&#8203;:contentReference[oaicite:1]{index=1}
+        MTLSize threadsPerGroup = MTLSizeMake(16, 16, 1);
+        // Define the total number of threads equal to the image size (width x height)
+        MTLSize threadsPerGrid = MTLSizeMake(params.width, params.height, 1);
+        // Dispatch the compute kernel with an arbitrarily sized thread grid covering the whole image
+        [encoder dispatchThreads:threadsPerGrid threadsPerThreadgroup:threadsPerGroup];
+        
+        [encoder endEncoding];
+        
+        // Commit the command buffer to enqueue the GPU work, then wait for completion
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+        // Check for any errors during GPU execution
+        if (commandBuffer.error != nil) {
+            NSLog(@"[MandelbrotGPU] Error: GPU execution failed: %@", commandBuffer.error);
+            return NO;
+        }
     }
-
-    // Set the compute pipeline state (our Mandelbrot kernel) and resources
-    [encoder setComputePipelineState:pipelineState];
-    // Bind the output buffer to the shader (argument index 0 corresponds to device uchar4* outPixels)
-    [encoder setBuffer:outputBuffer offset:0 atIndex:0];
-    // Pass Mandelbrot parameters to the shader as a constant buffer (argument index 1)
-    [encoder setBytes:&params length:sizeof(MandelbrotParams) atIndex:1];
-
-    // Configure threadgroup size for full GPU utilization (16x16 threads per group)&#8203;:contentReference[oaicite:1]{index=1}
-    MTLSize threadsPerGroup = MTLSizeMake(16, 16, 1);
-    // Define the total number of threads equal to the image size (width x height)
-    MTLSize threadsPerGrid = MTLSizeMake(params.width, params.height, 1);
-    // Dispatch the compute kernel with an arbitrarily sized thread grid covering the whole image
-    [encoder dispatchThreads:threadsPerGrid threadsPerThreadgroup:threadsPerGroup];
-
-    [encoder endEncoding];
-
-    // Commit the command buffer to enqueue the GPU work, then wait for completion
-    [commandBuffer commit];
-    [commandBuffer waitUntilCompleted];
-
-    // Check for any errors during GPU execution
-    if (commandBuffer.error != nil) {
-        NSLog(@"[MandelbrotGPU] Error: GPU execution failed: %@", commandBuffer.error);
-        return NO;
-    }
-
     // Copy the result from the GPU buffer into the outputImage array
     void *gpuDataPtr = [outputBuffer contents];
     if (gpuDataPtr == NULL) {

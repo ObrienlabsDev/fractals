@@ -3,7 +3,7 @@
 //  MetalComputeBasic
 //
 //  Created by Michael O'Brien on 2025/2/23.
-//  Copyright © 2025 Apple. All rights reserved.
+// Assistance of ChatGPT o1 pro "deep research"
 //
 
 #include <metal_stdlib>
