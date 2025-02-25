@@ -29,8 +29,8 @@ void add_arrays(const float* inA,
 int main(int argc, const char * argv[]) {
     
     int gpu = (argc > 1) ? atoi(argv[1]) : 0; // get command
-    int iterations = (argc > 1) ? atoi(argv[2]) : 2000;
-    printf("Using GPU #: %d for iterations: %d\n", gpu, iterations);
+    int runs = (argc > 1) ? atoi(argv[2]) : 5000;
+    printf("Using GPU #: %d for iterations: %d\n", gpu, runs);
     
     @autoreleasepool {
         // Initialize the default Metal GPU device
@@ -61,10 +61,10 @@ int main(int argc, const char * argv[]) {
         }
 
         // Compute the Mandelbrot image using the GPU
-        NSLog(@"Computing Mandelbrot set %ux%u with max %u iterations...", params.width, params.height, params.maxIterations);
+        NSLog(@"Computing Mandelbrot set %ux%u with max %u iterations on %u runs...", params.width, params.height, params.maxIterations, runs);
         BOOL ok;
         // check single run first
-        ok = computeMandelbrotImage(device, params, imageData);
+        ok = computeMandelbrotImage(device, params, imageData, runs);
         if (!ok) {
             NSLog(@"Mandelbrot GPU computation failed.");
             free(imageData);

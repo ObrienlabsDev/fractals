@@ -37,7 +37,7 @@ typedef struct {
  *                    where the resulting image (RGBA pixels) will be stored.
  * @return            YES if the computation succeeded, NO if an error occurred.
  */
-BOOL computeMandelbrotImage(id<MTLDevice> device, MandelbrotParams params, uint8_t *outputImage);
+BOOL computeMandelbrotImage(id<MTLDevice> device, MandelbrotParams params, uint8_t *outputImage, int runs);
 
 #ifdef __cplusplus
 }

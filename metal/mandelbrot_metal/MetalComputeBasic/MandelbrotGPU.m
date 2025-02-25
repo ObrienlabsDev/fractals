@@ -11,7 +11,7 @@
 #import <Foundation/Foundation.h>
 #include <time.h>
 
-BOOL computeMandelbrotImage(id<MTLDevice> device, MandelbrotParams params, uint8_t *outputImage) {
+BOOL computeMandelbrotImage(id<MTLDevice> device, MandelbrotParams params, uint8_t *outputImage, int runs) {
     
     time_t timeStart, timeEnd;
     double timeElapsed;
@@ -60,23 +60,22 @@ BOOL computeMandelbrotImage(id<MTLDevice> device, MandelbrotParams params, uint8
     }
 
     // Create a command buffer and a compute command encoder
-    int iterations = 5000;
-    for (int run = 0; run < iterations - 1; run++) {
-        
+    for (int run = 0; run < runs - 1; run++) {
         id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+
         id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
         if (encoder == nil) {
             NSLog(@"[MandelbrotGPU] Error: Failed to create compute command encoder.");
             return NO;
         }
-        
+
         // Set the compute pipeline state (our Mandelbrot kernel) and resources
         [encoder setComputePipelineState:pipelineState];
         // Bind the output buffer to the shader (argument index 0 corresponds to device uchar4* outPixels)
         [encoder setBuffer:outputBuffer offset:0 atIndex:0];
         // Pass Mandelbrot parameters to the shader as a constant buffer (argument index 1)
         [encoder setBytes:&params length:sizeof(MandelbrotParams) atIndex:1];
-        
+
         // Configure threadgroup size for full GPU utilization (16x16 threads per group)&#8203;:contentReference[oaicite:1]{index=1}
         MTLSize threadsPerGroup = MTLSizeMake(16, 16, 1);
         // Define the total number of threads equal to the image size (width x height)
@@ -85,10 +84,10 @@ BOOL computeMandelbrotImage(id<MTLDevice> device, MandelbrotParams params, uint8
         [encoder dispatchThreads:threadsPerGrid threadsPerThreadgroup:threadsPerGroup];
         
         [encoder endEncoding];
-        
+
         // Commit the command buffer to enqueue the GPU work, then wait for completion
         [commandBuffer commit];
-        [commandBuffer waitUntilCompleted];
+        [commandBuffer waitUntilCompleted];  // no sync means speedup of 1.5%
         // Check for any errors during GPU execution
         if (commandBuffer.error != nil) {
             NSLog(@"[MandelbrotGPU] Error: GPU execution failed: %@", commandBuffer.error);
