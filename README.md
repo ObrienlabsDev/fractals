@@ -1,6 +1,6 @@
 # fractals
 Mandelbrot set - via GPU
-Warning: Your GPU will run at 100% at up to 90% TDP.  You will need at least a 1600 Watt PSU and 2 separate 15A/1800W breakers on 2 lines.
+Warning: Your GPU will run at 100% at up to 90% TDP.  You will need at least a 1600 Watt PSU and 2 separate 15A/1800W breakers on 2 lines if running multiple servers.
 
 ## Performance
 
