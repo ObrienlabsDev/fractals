@@ -1,5 +1,4 @@
-﻿
-#include "cuda_runtime.h"
+﻿#include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
 #include <stdio.h>
@@ -16,7 +15,7 @@
 *
 * https://docs.nvidia.com/cuda/floating-point/index.html 
 */
-cudaError_t cudaFacade(double *c, double *a, double *b, unsigned int size);
+/*cudaError_t cudaFacade(double *c, double *a, double *b, unsigned int size);
 
 
 __device__ uint32_t mandel_double(double cr, double ci, int max_iter) {
@@ -128,49 +127,6 @@ void singleGPUMandelbrot() {
 
 cudaError_t cudaFacade(double* c, double* a, double* b, unsigned int size)
 {
-    /*
-    double cr = .9;
-    double ci = .1;
-    int max_iter = 2000;
-    int steps = 10000;
-    int threads = 512;
-    int blocks = (10000 + threads - 1) / threads;  // ensure threads*blocks ≥ steps
-    uint32_t* counts;
-    double xmin = -2.0;
-    double ymin = -2.0;
-    int dim = 256;
-    double step = (xmin * 2) / dim;
-    uint32_t* colors;
-    for (int i = 0; i < max_iter; i++) {
-        colors[i] = i;
-    }
-    //thrust::device_vector<uint32_t> dsums(steps);         // GPU buffer
-   // uint32_t* dptr = thrust::raw_pointer_cast(&dsums[0]); // get pointer
-    //double* dsums = 0;
-    cudaError_t cudaStatus;
-
-    
-    cudaStatus = cudaMalloc((void**)&counts, size * sizeof(double));
-    //cudaStatus = cudaMemcpy(dev_a, a, size * sizeof(double), cudaMemcpyHostToDevice);
-
-    mandel_kernel << <blocks, threads >> > (counts, xmin, ymin, step, max_iter, dim, colors);
-    //uint32_t mandel = mandel_double(cr, ci, max_iter);
-
-    cudaStatus = cudaDeviceSynchronize();
-
-    cudaStatus = cudaMemcpy(c, counts, size * sizeof(double), cudaMemcpyDeviceToHost);
-
-    double mandel = counts[0];
-
-    printf("real %.8f, imag %.8f, value %d\n",
-        cr, ci, mandel);
-
-    cudaFree(counts);
-
-    //return 0;
-    // 
-    */
-
     double* dev_a = 0;
     double* dev_b = 0;
     double* dev_c = 0;
@@ -246,7 +202,7 @@ Error:
     
     return cudaStatus;
 }
-
+*/
 #define WIDTH  4096//1920
 #define HEIGHT 4096//1080
 
