@@ -18,7 +18,11 @@ follow Ubuntu CUDA install on https://github.com/ObrienlabsDev/blog/blob/main/ub
 git clone https://github.com/ObrienlabsDev/fractals.git
 cd fractal/
 nvcc kernel.cu -o kernel
-./kernel 
+./kernel
+
+Using GPU #: 0 for iterations: 5000
+duration: 102
+time / run : 0.020400
 ```
 
 ## Performance
