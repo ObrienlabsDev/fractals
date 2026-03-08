@@ -23,6 +23,18 @@ nvcc kernel.cu -o kernel
 Using GPU #: 0 for iterations: 5000
 duration: 102
 time / run : 0.020400
+
+ubuntu@14900c:~$ nvidia-smi
+Sun Mar  8 16:33:50 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 590.48.01              Driver Version: 590.48.01      CUDA Version: 13.1     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A6000               Off |   00000000:01:00.0 Off |                  Off |
+| 69%   88C    P2            283W /  300W |     286MiB /  49140MiB |    100%      Default |
 ```
 
 ## Performance
