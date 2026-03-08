@@ -11,6 +11,15 @@ or on the RTX-3500 ADA running Visual Studio on the lenovo P1gen6
 
 nvcc.exe -gencode=arch=compute_52,code=\"sm_52,compute_52\" --use-local-env -ccbin "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\bin\HostX64\x64" -x cu   -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include"     --keep-dir fractal\x64\Release  -maxrregcount=0   --machine 64 --compile -cudart static    -DWIN32 -DWIN64 -DNDEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /FS   /MD " -Xcompiler "/Fdfractal\x64\Release\vc143.pdb" -o C:\wse_github\ObrienlabsDev\fractals\fractal\fractal\x64\Release\kernel.cu.obj "C:\wse_github\ObrienlabsDev\fractals\fractal\kernel.cu"
 ```
+## 14900c RTX-A6000 Ubuntu
+
+follow Ubuntu CUDA install on https://github.com/ObrienlabsDev/blog/blob/main/ubuntu.md#cuda
+```
+git clone https://github.com/ObrienlabsDev/fractals.git
+cd fractal/
+nvcc kernel.cu -o kernel
+./kernel 
+```
 
 ## Performance
 
